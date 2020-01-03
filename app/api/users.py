@@ -2,7 +2,6 @@ from flask import jsonify, request, url_for, g, abort
 from app import db
 from app.models import User
 from app.api import bp
-from app.api.auth import token_auth
 from app.api.errors import bad_request
 
 
@@ -73,3 +72,12 @@ def update_user(id):
     user.from_dict(data, new_user=False)
     db.session.commit()
     return jsonify(user.to_dict())
+
+
+@bp.route('/login/<str:username>/<str:password>', methods=['GET'])
+def login(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user is None or not user.check_password(password):
+        return bad_request('error')
+    return jsonify(user.to_dict())
+
