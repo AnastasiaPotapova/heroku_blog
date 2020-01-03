@@ -74,7 +74,7 @@ def update_user(id):
     return jsonify(user.to_dict())
 
 
-@bp.route('/login/<str:username>/<str:password>', methods=['GET'])
+@bp.route('/login/<string:username>/<string:password>', methods=['GET'])
 def login(username, password):
     user = User.query.filter_by(username=username).first()
     if user is None or not user.check_password(password):
