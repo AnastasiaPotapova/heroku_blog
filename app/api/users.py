@@ -2,18 +2,15 @@ from flask import jsonify, request, url_for, g, abort
 from app import db
 from app.models import User
 from app.api import bp
-from app.api.auth import token_auth
 from app.api.errors import bad_request
 
 
 @bp.route('/users/<int:id>', methods=['GET'])
-@token_auth.login_required
 def get_user(id):
     return jsonify(User.query.get_or_404(id).to_dict())
 
 
 @bp.route('/users', methods=['GET'])
-@token_auth.login_required
 def get_users():
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 10, type=int), 100)
@@ -22,7 +19,6 @@ def get_users():
 
 
 @bp.route('/users/<int:id>/followers', methods=['GET'])
-@token_auth.login_required
 def get_followers(id):
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -33,7 +29,6 @@ def get_followers(id):
 
 
 @bp.route('/users/<int:id>/followed', methods=['GET'])
-@token_auth.login_required
 def get_followed(id):
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -63,7 +58,6 @@ def create_user():
 
 
 @bp.route('/users/<int:id>', methods=['PUT'])
-@token_auth.login_required
 def update_user(id):
     if g.current_user.id != id:
         abort(403)
@@ -78,3 +72,12 @@ def update_user(id):
     user.from_dict(data, new_user=False)
     db.session.commit()
     return jsonify(user.to_dict())
+
+
+@bp.route('/login/<string:username>/<string:password>', methods=['GET'])
+def login(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user is None or not user.check_password(password):
+        return bad_request('error')
+    return jsonify(user.to_dict())
+
