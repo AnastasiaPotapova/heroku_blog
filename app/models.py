@@ -189,6 +189,7 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
                                     complete=False).first()
 
     def to_dict(self, include_email=False):
+        post = [x.body for x in Post.query.filter_by(user_id=self.id)]
         data = {
             'id': self.id,
             'username': self.username,
@@ -197,6 +198,7 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
             'post_count': self.posts.count(),
             'follower_count': self.followers.count(),
             'followed_count': self.followed.count(),
+            'posts': post,
             '_links': {
                 'self': url_for('api.get_user', id=self.id),
                 'followers': url_for('api.get_followers', id=self.id),
@@ -250,6 +252,19 @@ class Post(SearchableMixin, db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+    def to_dict(self):
+        data = {
+            'user_id':self.user_id,
+            'id': self.id,
+            'body': self.body
+        }
+        return data
+
+    def from_dict(self, data, new_user=False):
+        for field in ['user_id', 'body']:
+            if field in data:
+                setattr(self, field, data[field])
 
 
 class Message(db.Model):

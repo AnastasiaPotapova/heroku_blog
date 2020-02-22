@@ -1,6 +1,6 @@
 from flask import jsonify, request, url_for, g, abort
 from app import db
-from app.models import User
+from app.models import User, Post
 from app.api import bp
 from app.api.errors import bad_request
 
@@ -81,3 +81,11 @@ def login(username, password):
         return bad_request('error')
     return jsonify(user.to_dict())
 
+
+@bp.route('/posts/<int:user_id>', methods=['GET'])
+def login(user_id):
+    user = Post.query.filter_by(user_id=user_id)
+    data = []
+    for i in user:
+        data.append(i.to_dict())
+    return jsonify(data)
