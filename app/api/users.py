@@ -83,13 +83,13 @@ def login(username, password):
     return jsonify(user.to_dict())
 
 
-@bp.route('/posts/<int:user_id>', methods=['GET'])
-def posts(user_id):
-    user = Post.query.filter_by(user_id=user_id)
-    data = []
-    for i in user:
-        data.append(i.to_dict())
+@bp.route('/posts', methods=['GET'])
+def posts():
+    page = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 10, type=int), 100)
+    data = User.to_collection_dict(User.query, page, per_page, 'api.get_users')
     return jsonify(data)
+
 
 @bp.route('/post/<int:user_id>/<string:content>', methods=['POST'])
 def post(user_id, content):
