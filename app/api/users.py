@@ -1,6 +1,7 @@
 from flask import jsonify, request, url_for, g, abort
 from app import db
 from app.models import User, Post
+from guess_language import guess_language
 from app.api import bp
 from app.api.errors import bad_request
 
@@ -83,7 +84,21 @@ def login(username, password):
 
 
 @bp.route('/posts/<int:user_id>', methods=['GET'])
-def login(user_id):
+def posts(user_id):
+    user = Post.query.filter_by(user_id=user_id)
+    data = []
+    for i in user:
+        data.append(i.to_dict())
+    return jsonify(data)
+
+@bp.route('/post/<int:user_id>/<string:content>', methods=['POST'])
+def post(user_id, content):
+    user = User.query.get_or_404(user_id)
+    language = guess_language(content)
+    post = Post(body=content, author=user,
+                language=language)
+    db.session.add(post)
+    db.session.commit()
     user = Post.query.filter_by(user_id=user_id)
     data = []
     for i in user:
