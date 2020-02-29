@@ -1,4 +1,4 @@
 import requests
 
-a = requests.get("https://nast-blog.herokuapp.com/api/login/Masha/a")
+a = requests.post("https://nast-blog.herokuapp.com/api/post/1/test")
 print(a.content)
