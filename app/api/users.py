@@ -91,12 +91,11 @@ def posts():
     return jsonify(data)
 
 
-@bp.route('/post/<int:user_id>/<string:content>', methods=['POST'])
+@bp.route('users/<int:user_id>/post/<string:content>', methods=['POST'])
 def post(user_id, content):
     user = User.query.get_or_404(user_id)
     language = guess_language(content)
-    post = Post(body=content, author=user,
-                language=language)
+    post = Post(body=content, author=user,language=language)
     db.session.add(post)
     db.session.commit()
     user = Post.query.filter_by(user_id=user_id)
